@@ -1,0 +1,7 @@
+secretGenerator:
+- name: mariadb-pass
+  literals:
+  - password=password
+resources:
+  - mariadb-deployment.yaml
+  - typo3-deployment.yaml

@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: typo3
+  labels:
+    app: typo3
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: typo3
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: typo3-pv-claim
+  labels:
+    app: typo3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  name: typo3
+  labels:
+    app: typo3
+spec:
+  selector:
+    matchLabels:
+      app: typo3
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: typo3
+        tier: frontend
+    spec:
+      containers:
+      - image: typo3:latest
+        name: typo3
+        imagePullPolicy: Never
+        env:
+        - name: TYPO3_CONTEXT
+          value: Development
+        - name: TYPO3_DB
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 80
+          name: typo3
+        volumeMounts:
+        - name: typo3-persistent-storage
+          mountPath: /var/www/html
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.2"        
+      volumes:
+      - name: typo3-persistent-storage
+        persistentVolumeClaim:
+          claimName: typo3-pv-claim
