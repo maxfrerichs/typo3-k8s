@@ -12,4 +12,4 @@ Explore possible advantages and disadvantages of a Kubernetes-based deployment o
 * Build and tag image like this (docker build t3docker -t typo3)
 * Run kubectl apply -k ./
 * Wait a moment...
-:rocket: Voilà! (or not)
+* :rocket: Voilà! (or not)
